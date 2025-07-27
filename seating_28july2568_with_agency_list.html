@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ผังที่นั่ง</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      
+    }
+    .row {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .row-label {
+      width: 50px;
+      text-align: right;
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    .seat {
+      width: 30px;
+      height: 30px;
+      margin: 2px;
+      background-color: #4caf50;
+      border-radius: 5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+    }
+    .seat.taken { cursor: not-allowed; }
+    
+    .legend {
+      margin-top: 20px;
+    }
+    .legend span {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+  
+    .seat.highlight {
+      border: 3px solid yellow;
+      animation: blink 1s step-end infinite alternate;
+    }
+    @keyframes blink {
+      0% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+</style>
+</head>
+<body>
+  <h1>ผังที่นั่งงานรัฐพิธี 28 ก.ค. 2568</h1>
+  <div>
+    <label for="agencySearch">ค้นหาชื่อหน่วยงาน: </label>
+    <input type="text" id="agencySearch" placeholder="พิมพ์ชื่อหน่วยงาน..." />
+  </div>
+
+  <div id="seating-area"></div>
+  <p style="margin-top: 20px; font-style: italic; color: #555;">หมายเหตุ: สีเขียว = ที่ว่าง / สีเทา = มีการจัดที่นั่งให้หน่วยงาน</p>
+<p style="margin-top: 10px;"><strong>รายชื่อหน่วยงานที่มีการจัดที่นั่ง:</strong></p>
+<ul style="columns: 2;">
+<li>กิ่งกาชาดอำเภอพัฒนานิคม</li>
+<li>ชมรมกำนันผู้ใหญ่บ้าน</li>
+<li>ปลัดอำเภอหัวหน้ากลุ่มงานทะเบียนและบัตร</li>
+<li>ศูนย์ส่งเสริมการเรียนรู้ อำเภอพัฒนานิคม (สกร.)</li>
+<li>สถานีตำรวจภูธรมะนาวหวาน</li>
+<li>สถานีตำรวจภูธรโคกสลุง</li>
+<li>สัสดีอำเภอพัฒนานิคม</li>
+<li>สำนักงานที่ดินจังหวัดลพบุรี สาขาพัฒนานิคม</li>
+<li>สำนักงานประมงอำเภอพัฒนานิคม</li>
+<li>สำนักงานปศุสัตว์อำเภอพัฒนานิคม</li>
+<li>สำนักงานพัฒนาชุมชนอำเภอพัฒนานิคม</li>
+<li>สำนักงานสาธารณสุขอำเภอพัฒนานิคม</li>
+<li>สำนักงานเกษตรอำเภอพัฒนานิคม</li>
+<li>หัวหน้าหน่วยงาน</li>
+<li>องค์การบริหารส่วนตำบลน้ำสุด</li>
+<li>องค์การบริหารส่วนตำบลมะนาวหวาน</li>
+<li>องค์การบริหารส่วนตำบลหนองบัว</li>
+<li>องค์การบริหารส่วนตำบลห้วยขุนราม</li>
+<li>เทศบาลตำบลดีลัง</li>
+<li>เทศบาลตำบลพัฒนานิคม</li>
+<li>เทศบาลตำบลเขาพระยาเดินธง</li>
+<li>เทศบาลตำบลแก่งเสือเต้น</li>
+<li>โรงพยาบาลพัฒนานิคม</li>
+<li>โรงเรียนชุมชนบ้านแก่งเสือเต้น</li>
+<li>โรงเรียนซอย 12 สาย 4 ซ้าย</li>
+<li>โรงเรียนพัฒนานิคม</li>
+<li>โรงเรียนอนุบาลพัฒนานิคม</li>
+<li>โรงเรียนโคกสลุงวิทยา</li>
+</ul>
+
+
+  
+
+  <script>
+    const seatRows = {
+      'A': 22,
+      'B': 24,
+      'C': 29,
+      'D': 29,
+      'E': 29,
+      'F': 29,
+      'G': 29,
+      'H': 29,
+      'I': 29,
+      'J': 29,
+      'K': 29,
+      'L': 29,
+      'พิเศษ': 10
+    };
+
+    const agenciesA = [
+      'ที่ทำการปกครองอำเภอพัฒนานิคม',
+      'สถานีตำรวจภูธรพัฒนานิคม',
+      'สมาชิกองค์การบริหารส่วนจังหวัดลพบุรี เขต 3 อำเภอพัฒนานิคม',
+      'เทศบาลตำบลพัฒนานิคม',
+      'เทศบาลตำบลเขาพระยาเดินธง',
+      'เทศบาลตำบลแก่งเสือเต้น',
+      'เทศบาลตำบลดีลัง',
+      'องค์การบริหารส่วนตำบลช่องสาริกา',
+      'องค์การบริหารส่วนตำบลหนองบัว',
+      'องค์การบริหารส่วนตำบลมะนาวหวาน',
+      'องค์การบริหารส่วนตำบลโคกสลุง',
+      'องค์การบริหารส่วนตำบลชอนน้อย',
+      'องค์การบริหารส่วนตำบลห้วยขุนราม',
+      'องค์การบริหารส่วนตำบลน้ำสุด'
+    ];
+
+    
+    const agencyAssignments = {
+  'A': [
+    { count: 14, label: 'หัวหน้าหน่วยงาน' },
+    { count: 8, label: 'องค์การบริหารส่วนตำบลห้วยขุนราม' }
+  ],
+  'B': [
+    { count: 1, label: 'สถานีตำรวจภูธรโคกสลุง' },
+    { count: 1, label: 'สถานีตำรวจภูธรมะนาวหวาน' },
+    { count: 1, label: 'ปลัดอำเภอหัวหน้ากลุ่มงานทะเบียนและบัตร' },
+    { count: 1, label: 'ชมรมกำนันผู้ใหญ่บ้าน' },
+    { count: 1, label: 'สำนักงานที่ดินจังหวัดลพบุรี สาขาพัฒนานิคม' },
+    { count: 1, label: 'สำนักงานสาธารณสุขอำเภอพัฒนานิคม' },
+    { count: 1, label: 'โรงพยาบาลพัฒนานิคม' },
+    { count: 1, label: 'สำนักงานเกษตรอำเภอพัฒนานิคม' },
+    { count: 1, label: 'สำนักงานพัฒนาชุมชนอำเภอพัฒนานิคม' },
+    { count: 1, label: 'สำนักงานปศุสัตว์อำเภอพัฒนานิคม' },
+    { count: 1, label: 'สัสดีอำเภอพัฒนานิคม' },
+    { count: 1, label: 'สำนักงานประมงอำเภอพัฒนานิคม' },
+    { count: 1, label: 'ศูนย์ส่งเสริมการเรียนรู้ อำเภอพัฒนานิคม (สกร.)' },
+    { count: 1, label: 'โรงเรียนพัฒนานิคม' },
+    { count: 1, label: 'โรงเรียนชุมชนบ้านแก่งเสือเต้น' },
+    { count: 1, label: 'โรงเรียนโคกสลุงวิทยา' },
+    { count: 1, label: 'โรงเรียนซอย 12 สาย 4 ซ้าย' },
+    { count: 1, label: 'โรงเรียนอนุบาลพัฒนานิคม' }
+  ],
+  'C': [
+    { count: 7, label: 'องค์การบริหารส่วนตำบลน้ำสุด' },
+    { count: 6, label: 'โรงเรียนอนุบาลพัฒนานิคม' },
+    { count: 14, label: 'สำนักงานสาธารณสุขอำเภอพัฒนานิคม' },
+    { count: 2, label: 'โรงพยาบาลพัฒนานิคม' }
+  ],
+  'D': [
+    { count: 11, label: 'โรงพยาบาลพัฒนานิคม' },
+    { count: 7, label: 'ศูนย์ส่งเสริมการเรียนรู้ อำเภอพัฒนานิคม (สกร.)' },
+    { count: 10, label: 'กิ่งกาชาดอำเภอพัฒนานิคม' },
+    { count: 1, label: 'โรงเรียนชุมชนบ้านแก่งเสือเต้น' }
+  ],
+  'E': [
+    { count: 4, label: 'โรงเรียนชุมชนบ้านแก่งเสือเต้น' },
+    { count: 7, label: 'โรงเรียนโคกสลุงวิทยา' },
+    { count: 10, label: 'เทศบาลตำบลพัฒนานิคม' },
+    { count: 8, label: 'เทศบาลตำบลแก่งเสือเต้น' }
+  ],
+  'F': [
+    { count: 11, label: 'เทศบาลตำบลดีลัง' },
+    { count: 17, label: 'องค์การบริหารส่วนตำบลหนองบัว' },
+    { count: 1, label: 'สำนักงานที่ดินจังหวัดลพบุรี สาขาพัฒนานิคม' }
+  ],
+  'G': [
+    { count: 7, label: 'สำนักงานที่ดินจังหวัดลพบุรี สาขาพัฒนานิคม' },
+    { count: 10, label: 'โรงเรียนพัฒนานิคม' }
+  ],
+  'H': [
+    { count: 9, label: 'องค์การบริหารส่วนตำบลมะนาวหวาน' },
+    { count: 1, label: 'โรงเรียนอนุบาลพัฒนานิคม' },
+    { count: 8, label: 'เทศบาลตำบลเขาพระยาเดินธง' },
+    { count: 11, label: 'เทศบาลตำบลเขาพระยาเดินธง' }
+  ],
+  'I': [
+    { count: 1, label: 'เทศบาลตำบลเขาพระยาเดินธง' }
+  ],
+  'J': [],
+  'K': [],
+  'L': [],
+  'พิเศษ': []
+};
+
+    const seatingArea = document.getElementById("seating-area");
+
+    for (const [rowLabel, count] of Object.entries(seatRows)) {
+      const rowDiv = document.createElement("div");
+      rowDiv.className = "row";
+
+      const labelDiv = document.createElement("div");
+      labelDiv.className = "row-label";
+      labelDiv.textContent = rowLabel;
+      rowDiv.appendChild(labelDiv);
+
+      let seats = [];
+
+      if (rowLabel === 'A') {
+        const presidentSeat = document.createElement("div");
+        presidentSeat.className = "seat";
+        presidentSeat.textContent = 'ประธาน';
+        presidentSeat.style.backgroundColor = '#2196f3';
+        presidentSeat.style.fontSize = '10px';
+        presidentSeat.title = 'ที่นั่งประธานในพิธี';
+        seats.push(presidentSeat);
+
+        for (let i = 1; i <= count; i++) {
+          const seat = document.createElement("div");
+          seat.className = "seat";
+          seat.textContent = i;
+          
+          if (!seat.title) {
+            seat.style.backgroundColor = '#4caf50';
+          }
+    if (i <= agenciesA.length) {
+            seat.title = agenciesA[i - 1];
+            seat.classList.add('taken');
+          seat.style.backgroundColor = '#dddddd';
+          seat.style.color = 'black';
+          seat.style.backgroundColor = '#dddddd';
+          seat.style.color = 'black';
+seat.style.backgroundColor = '#dddddd';
+          seat.style.color = 'black';
+                      } 
+          // การคลิกถูกปิดสำหรับผู้ใช้ทั่วไป
+          
+seats.push(seat);
+        }
+      } else {
+        const assignments = agencyAssignments[rowLabel] || [];
+        let index = 0;
+        let assigned = 0;
+        for (let i = 1; i <= count; i++) {
+          const seat = document.createElement("div");
+          seat.className = "seat";
+          seat.textContent = i;
+
+          
+          if (!seat.title) {
+            seat.style.backgroundColor = '#4caf50';
+          }
+    const current = assignments[index];
+          if (current && assigned < current.count) {
+            const isHead = current.headAt === i;
+            seat.title = current.label;
+            seat.classList.add('taken');
+          seat.style.backgroundColor = '#dddddd';
+          seat.style.color = 'black';
+seat.style.backgroundColor = '#dddddd';
+          seat.style.color = 'black';
+                        assigned++;
+            if (assigned >= current.count && index < assignments.length - 1) {
+              index++;
+              assigned = 0;
+            }
+          }
+
+          seat.addEventListener("click", () => {
+            if (!seat.classList.contains("taken")) {
+              seat.classList.toggle("taken");
+            }
+          });
+          
+seats.push(seat);
+        }
+      }
+
+      seats.forEach(seat => rowDiv.appendChild(seat));
+      seatingArea.appendChild(rowDiv);
+    }
+  
+    document.getElementById("agencySearch").addEventListener("input", function () {
+      const query = this.value.trim().toLowerCase();
+      const allSeats = document.querySelectorAll(".seat");
+
+      allSeats.forEach(seat => {
+        seat.classList.remove("highlight");
+        if (seat.title && query && seat.title.toLowerCase().includes(query)) {
+          seat.classList.add("highlight");
+        seat.style.backgroundColor = '#dddddd';
+          seat.style.color = 'black';
+}
+      });
+    });
+
+</script>
+</body>
+</html>
